@@ -1,41 +1,17 @@
 import { useRef, useState, useEffect } from "react";
 
-export default function CarouselInstagram({ startIndex = 0 }) {
+export default function CarouselInstagram({ photos, startIndex = 0  }) {
   const carouselRef = useRef(null);
   const [isDown, setIsDown] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [activeIndex, setActiveIndex] = useState(startIndex);
-  const [photos, setPhotos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchImages = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/api/images");
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des images");
-      }
-      const data = await response.json();
-      setPhotos(data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Erreur:", error);
-      setError(error.message);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchImages();
-  }, []);
 
   const handleMouseDown = (e) => {
     setIsDown(true);
     setStartX(e.pageX - carouselRef.current.offsetLeft);
     setScrollLeft(carouselRef.current.scrollLeft);
   };
-
   const handleMouseLeave = () => setIsDown(false);
   const handleMouseUp = () => setIsDown(false);
   const handleMouseMove = (e) => {
@@ -56,7 +32,6 @@ export default function CarouselInstagram({ startIndex = 0 }) {
     setActiveIndex(index);
   };
 
-  // Aller à un index spécifique (clic sur un indicateur)
   const goToIndex = (index) => {
     const scrollWidth =
       carouselRef.current.scrollWidth - carouselRef.current.offsetWidth;
@@ -67,7 +42,7 @@ export default function CarouselInstagram({ startIndex = 0 }) {
     });
   };
 
-  useEffect(() => {
+   useEffect(() => {
     if (carouselRef.current && photos.length > 0) {
       const scrollWidth =
         carouselRef.current.scrollWidth - carouselRef.current.offsetWidth;
@@ -90,14 +65,6 @@ export default function CarouselInstagram({ startIndex = 0 }) {
     };
   }, [photos.length]);
 
-  if (isLoading) {
-    return <div className="text-center py-8">Chargement des images en cours...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-500">Erreur: {error}</div>;
-  }
-
   return (
     <div className="lg:h-[1024px] h-[440px]">
       <div
@@ -115,7 +82,7 @@ export default function CarouselInstagram({ startIndex = 0 }) {
             className="flex-shrink-0 snap-center relative px-2 min-w-[65%]"
           >
             <img
-              src={photo.url} // Assure-toi que ton backend renvoie un champ 'url' avec le chemin de l'image
+              src={photo}
               alt={`photo ${i}`}
               draggable={false}
               className="w-[880px] lg:h-[880px] h-[440px] object-cover rounded-lg shadow-md"

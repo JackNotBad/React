@@ -1,69 +1,166 @@
+// src/pages/Contact.jsx
 import { useState } from "react";
 
 export default function Contact() {
-  const [form, setForm] = useState({ nom: "", email: "", objet: "", message: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    content: "",
+  });
+
+  const [status, setStatus] = useState({
+    loading: false,
+    success: null,
+    error: null,
+  });
 
   const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Votre demande a été envoyée !");
-    setForm({ nom: "", email: "", objet: "", message: "" });
+    setStatus({ loading: true, success: null, error: null });
+
+    try {
+      const apiUrl = "https://localhost:8000/api/messages";
+
+      const token = localStorage.getItem("jwtToken");
+
+      const headers = {
+        "Content-Type": "application/ld+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      const payload = {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        content: form.content,
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        let errText = `Erreur ${response.status}`;
+        try {
+          const data = await response.json();
+          if (data?.violations?.length) {
+            errText = data.violations.map((v) => v.content).join(", ");
+          } else if (data?.detail) {
+            errText = data.detail;
+          } else if (data?.content) {
+            errText = data.content;
+          } else {
+            errText = JSON.stringify(data);
+          }
+        } catch (err) {
+          try {
+            errText = await response.text();
+          } catch (e) {
+          }
+        }
+        throw new Error(errText);
+      }
+
+      setStatus({
+        loading: false,
+        success: "Votre demande a bien été envoyée.",
+        error: null,
+      });
+      setForm({ name: "", email: "", subject: "", content: "" });
+    } catch (err) {
+      console.error("Envoi message:", err);
+      setStatus({
+        loading: false,
+        success: null,
+        error: err?.message || "Une erreur est survenue, veuillez réessayer.",
+      });
+    }
   };
 
   return (
-    <div>
-      <h2 className="mb-6 text-center">Besoin d’un devis ou d’un renseignement ? Notre équipe vous répond dans les plus brefs délais.</h2>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h2 className="mb-6 text-center text-2xl font-semibold">
+        Besoin d’un devis ou d’un renseignement ? Notre équipe vous répond dans les plus brefs délais.
+      </h2>
 
-      <div className="grid md:grid-cols-1 gap-6 w-fit mx-auto">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label htmlFor="nom">Nom</label>
-          <input
-            type="text"
-            name="nom"
-            placeholder="Votre nom"
-            value={form.nom}
-            onChange={handleChange}
-            className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
-            required
-          />
-          <label htmlFor="email">Adresse e-mail</label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Votre email"
-            value={form.email}
-            onChange={handleChange}
-            className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
-            required
-          />
-          <label htmlFor="objet">Objet</label>
-          <input
-            type="text"
-            name="objet"
-            placeholder="Objet"
-            value={form.objet}
-            onChange={handleChange}
-            className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
-            required
-          />
-          <label htmlFor="message">Votre message</label>
-          <textarea
-            name="message"
-            placeholder="Votre message"
-            value={form.message}
-            onChange={handleChange}
-            className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
-            rows="5"
-            required
-          ></textarea>
-          <button
-            type="submit"
-            className="bg-[var(--orange)] font-bold text-[var(--mauve)] px-6 py-3 rounded hover:bg-[var(--pink)] block mx-auto"
-          >
-            Envoyer
-          </button>
+      <div className="grid md:grid-cols-1 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
+          <div>
+            <label htmlFor="name" className="block mb-1 font-medium">Nom</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Votre nom"
+              value={form.name}
+              onChange={handleChange}
+              className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block mb-1 font-medium">Adresse e‑mail</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Votre email"
+              value={form.email}
+              onChange={handleChange}
+              className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="subject" className="block mb-1 font-medium">Objet</label>
+            <input
+              id="subject"
+              name="subject"
+              type="text"
+              placeholder="Objet"
+              value={form.subject}
+              onChange={handleChange}
+              className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="content" className="block mb-1 font-medium">Votre message</label>
+            <textarea
+              id="content"
+              name="content"
+              placeholder="Votre message"
+              value={form.content}
+              onChange={handleChange}
+              className="bg-[var(--mauve-opacity)] w-full p-3 border rounded"
+              rows="6"
+              required
+            />
+          </div>
+
+          {status.error && <div className="text-red-600">{status.error}</div>}
+          {status.success && <div className="text-green-700">{status.success}</div>}
+
+          <div className="text-center">
+            <button
+              type="submit"
+              disabled={status.loading}
+              className={`bg-[var(--orange)] font-bold text-[var(--mauve)] px-6 py-3 rounded hover:bg-[var(--pink)] transition ${
+                status.loading ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+            >
+              {status.loading ? "Envoi..." : "Envoyer"}
+            </button>
+          </div>
         </form>
 
         <iframe
@@ -74,7 +171,7 @@ export default function Contact() {
           allowFullScreen=""
           loading="lazy"
           className="rounded-lg"
-        ></iframe>
+        />
       </div>
     </div>
   );

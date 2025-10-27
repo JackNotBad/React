@@ -1,169 +1,160 @@
-import notreHistoire from "../assets/About/notre-histoire.png"
-import nosValeurs from "../assets/About/nos-valeurs.png"
-import notreVision from "../assets/About/notre-vision.png"
-import bob from "../assets/About/bob.png"
-import tom from "../assets/About/tom.png"
+import { useState, useEffect } from "react";
+import React from "react";
 import Carousel from "../components/Carousel";
-import carousel1 from "../assets/About/carouselAbout1.png"
-import carousel2 from "../assets/About/carouselAbout2.png"
-import carousel3 from "../assets/About/carouselAbout3.png"
-import carousel4 from "../assets/About/carouselAbout4.png"
-import carousel5 from "../assets/About/carouselAbout5.png"
-import carousel6 from "../assets/About/carouselAbout6.png"
-import carousel7 from "../assets/About/carouselAbout7.png"
+import Section from "../components/Sections";
+import { backPublicPath } from '../utils';
+
 
 export default function About() {
-      const photos = [
-      carousel1,
-      carousel2,
-      carousel3,
-      carousel4,
-      carousel5,
-      carousel6,
-      carousel7,
-    ];
 
-  return (
+  const [sections, setSections] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [carousels, setCarousels] = useState([]);
+
+  useEffect(() => {
+    fetch("https://127.0.0.1:8000/api/sections/?Page_Id=2")
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur réseau");
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data,"data")
+        const formattedSections = data.member.map((item) => ({
+          id: item.id,
+          title: item.Title,
+          text: item.Text,
+          imgSrc: item.Image_Id?.url,
+          imgAlt: item.Image_Id?.alt,
+          position: item.Position,
+        }));
+        console.log(formattedSections, "formattedSections")
+        setSections(formattedSections);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erreur:", error);
+        setIsLoading(false);
+      });
+  }, []);
+  
+  useEffect(() => {
+    fetch("https://127.0.0.1:8000/api/carousels/")
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur carousels: " + response.status);
+        return response.json();
+      })
+      .then((data) => {
+        const members = data?.member ?? [];
+        const result = members.map((carousel) => {
+          const cid = carousel?.id ?? null;
+          const ctitle = carousel?.title ?? "";
+          const cpage = carousel?.page?.Name ?? "";
+          const imgs = (carousel.images ?? [])
+            .slice()
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+            .map((carouselitem) => {
+              const filename = carouselitem?.image?.url;
+              if (!filename) return null;
+              return {
+                url: backPublicPath + String(filename).replace(/^\//, ""),
+                alt: carouselitem?.image?.alt ?? "",
+                position: carouselitem?.position ?? null,
+              };
+            })
+            .filter(Boolean);
+
+          return { id: cid, title: ctitle, page: cpage, images: imgs };
+        });
+
+        setCarousels(result);
+      })
+      .catch((err) => {
+        console.error("Erreur fetch carousels:", err);
+        setCarousels([]);
+      });
+  }, []);
+
+  const photos = React.useMemo(() => {
+    return carousels
+      .filter(c => String(c.page).toLowerCase() === 'presentation')
+      .flatMap(carouselItem => (carouselItem.images || []).map(img => img.url));
+  }, [carousels]);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Chargement en cours...</div>;
+  }
+
+  const getSectionByPosition = (pos) => sections.find((sectionItem) => sectionItem.position === pos);
+
+return (
     <>
-            <section 
-            className="
-              flex flex-col text-center
-              max-w-150 mx-auto p-5 box-content
-              lg:flex-row lg:text-left lg:max-w-300
-            ">
-              <div>
-                <img
-                  src={bob}
-                  className="
-                  object-contain
-                  max-w-50
-                  mx-auto mt-11
-                  lg:mt-0 lg:mx-0 lg:max-w-135 lg:w-135 lg:max-h-130 
-                "
-                  alt="lead of the canopees team"
-                />
-                <div
-                  className="
-                  mb-0 mt-5 text-center
-                  lg:mt-0 lg:mx-10 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-70 
-                ">
-                  <h2>Bob</h2>
-                  <p>Un des deux passionnées de la nature</p>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id lacus viverra, pretium metus et, condimentum leo. Sed lacus sapien, accumsan ut tellus vel, sollicitudin aliquam ligula. Donec ex metus, vehicula in magna eu, semper pulvinar felis. Curabitur elementum gravida leo, ut fringilla est placerat eu. Suspendisse potenti. Maecenas sapien justo, semper non finibus sit amet, elementum nec arcu. Phasellus vitae mi mollis, rhoncus ex aliquam, pulvinar sem.
-                  </p>
-                </div>
-              </div>
-              <div>
-                <img
-                  src={tom}
-                  className="
-                  object-contain
-                  max-w-50
-                  mx-auto mt-11
-                  lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-                "
-                  alt="lead of the canopees team"
-                />
-                <div
-                  className="
-                  mb-0 mt-5 text-center
-                  lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-70
-                ">
-                  <h2>Tom</h2>
-                  <p>Un des deux passionnées de la nature</p>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id lacus viverra, pretium metus et, condimentum leo. Sed lacus sapien, accumsan ut tellus vel, sollicitudin aliquam ligula. Donec ex metus, vehicula in magna eu, semper pulvinar felis. Curabitur elementum gravida leo, ut fringilla est placerat eu. Suspendisse potenti. Maecenas sapien justo, semper non finibus sit amet, elementum nec arcu. Phasellus vitae mi mollis, rhoncus ex aliquam, pulvinar sem.
-                  </p>
-                </div>
-              </div>
-            </section>
-            <section 
-            className="
-              flex flex-col text-center
-              max-w-150 mx-auto p-5 box-content
-              lg:flex-row lg:text-left lg:max-w-300 lg:py-26
-            ">
-              <img
-                src={notreHistoire}
-                className="
-                object-contain
-                max-w-88 w-full 
-                mx-auto mt-11
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-              "
-                alt="part of the canopees team"
-              />
-              <div 
-                className="
-                mb-0 mt-5
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-              ">
-                <h2>Notre histoire</h2>
-                <p>Depuis 2020, Canopées entretiennent les jardins.</p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id lacus viverra, pretium metus et, condimentum leo. Sed lacus sapien, accumsan ut tellus vel, sollicitudin aliquam ligula. Donec ex metus, vehicula in magna eu, semper pulvinar felis. Curabitur elementum gravida leo, ut fringilla est placerat eu. Suspendisse potenti. Maecenas sapien justo, semper non finibus sit amet, elementum nec arcu. Phasellus vitae mi mollis, rhoncus ex aliquam, pulvinar sem.
-                </p>
-              </div>
-            </section>
-            <section 
-            className="
-              flex flex-col text-center
-              max-w-150 mx-auto px-5 pt-12 pb-38 box-content
-              lg:pt-18 lg:pb-30
-              lg:flex-row lg:text-left lg:max-w-300 lg:py-26
-            ">
-              <div 
-                className="
-                mb-0 order-2 mt-5
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130 lg:order-0
-              ">
-                <h2>Nos valeurs</h2>
-                <p>
-                  Praesent lorem lorem, placerat non orci a, faucibus posuere turpis. Nunc nec pharetra risus, vitae aliquam eros. Fusce venenatis nibh finibus, molestie tellus sed, gravida nisl. Quisque sit amet purus sagittis, mattis augue vitae, sodales erat. Fusce vel pellentesque erat. In ultrices, nunc ut tristique ultricies, libero nibh finibus nisi, ac faucibus velit velit et leo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam dapibus pretium risus, id condimentum libero gravida efficitur. Aenean vestibulum interdum dui, vel molestie nunc blandit non. Maecenas vel facilisis arcu. Sed varius tristique ultricies. Nulla facilisi. Proin sit amet nunc non urna sodales finibus ut id leo. Fusce in mattis neque, nec gravida justo.
-                </p>
-              </div>
-              <img
-                src={nosValeurs}
-                className="
-                object-contain
-                max-w-88 w-full 
-                mx-auto mt-11
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-              "
-                alt="part of the canopees team"
-              />
-            </section>
-            <section className="flex-col max-w-300 px-5 mx-auto box-content flex">
-              <Carousel photos={photos} startIndex={3}/>
-            </section>
-            <section 
-            className="
-              flex flex-col text-center
-              max-w-150 mx-auto px-5 pt-12 box-content
-              lg:flex-row lg:text-left lg:max-w-300 lg:py-26
-            ">
-              <img
-                src={notreVision}
-                className="
-                object-contain
-                max-w-88 w-full 
-                mx-auto mt-20
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-              "
-                alt="part of the canopees team"
-              />
-              <div 
-                className="
-                mb-0 mt-5
-                lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-              ">
-                <h2>Notre Vision</h2>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id lacus viverra, pretium metus et, condimentum leo. Sed lacus sapien, accumsan ut tellus vel, sollicitudin aliquam ligula. Donec ex metus, vehicula in magna eu, semper pulvinar felis. Curabitur elementum gravida leo, ut fringilla est placerat eu. Suspendisse potenti. Maecenas sapien justo, semper non finibus sit amet, elementum nec arcu. Phasellus vitae mi mollis, rhoncus ex aliquam, pulvinar sem.
-                </p>
-              </div>
-            </section>
+      {/* Section Bob */}
+      {getSectionByPosition(1) && (
+        <Section
+          imgSrc={getSectionByPosition(1).imgSrc}
+          imgAlt={getSectionByPosition(1).imgAlt}
+          text={getSectionByPosition(1).text}
+          imgFirst={false}
+        >
+          <h2>{getSectionByPosition(1).title}</h2>
+        </Section>
+      )}
+
+      {/* Section Tom */}
+      {getSectionByPosition(2) && (
+        <Section
+          imgSrc={getSectionByPosition(2).imgSrc}
+          imgAlt={getSectionByPosition(2).imgAlt}
+          text={getSectionByPosition(2).text}
+          imgFirst={false}
+        >
+          <h2>{getSectionByPosition(2).title}</h2>
+        </Section>
+      )}
+
+      {/* Section "Notre histoire" */}
+      {getSectionByPosition(3) && (
+        <Section
+          imgSrc={getSectionByPosition(3).imgSrc}
+          imgAlt={getSectionByPosition(3).imgAlt}
+          text={getSectionByPosition(3).text}
+          imgFirst={true}
+        >
+          <h2>{getSectionByPosition(3).title}</h2>
+        </Section>
+      )}
+
+      {/* Section "Nos valeurs" */}
+      {getSectionByPosition(4) && (
+        <Section
+          imgSrc={getSectionByPosition(4).imgSrc}
+          imgAlt={getSectionByPosition(4).imgAlt}
+          text={getSectionByPosition(4).text}
+          imgFirst={false}
+        >
+          <h2>{getSectionByPosition(4).title}</h2>
+        </Section>
+      )}
+
+      {/* Carousel */}
+      <section className="flex-col max-w-300 px-5 mx-auto box-content flex">
+        <h2 className="text-center mb-5">
+          {carousels.find((item) => item.page === "presentation")?.title}
+        </h2>
+        <Carousel photos={photos} startIndex={3} />
+      </section>
+
+      {/* Section "Notre Vision" */}
+      {getSectionByPosition(5) && (
+        <Section
+          imgSrc={getSectionByPosition(5).imgSrc}
+          imgAlt={getSectionByPosition(5).imgAlt}
+          text={getSectionByPosition(5).text}
+          imgFirst={true}
+        >
+          <h2>{getSectionByPosition(5).title}</h2>
+        </Section>
+      )}
     </>
-  )
+  );
 }

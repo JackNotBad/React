@@ -1,49 +1,32 @@
 import { useState, useEffect } from "react";
-import parse from "html-react-parser";
+import React from "react";
 import Slider from "../components/Slider";
+import Section from "../components/Sections";
 import Carousel from "../components/Carousel";
-import passionCanopees from "../assets/Accueil/passion-canopees.png";
-import carousel1 from "../assets/Accueil/carousel/carousel1.png";
-import carousel2 from "../assets/Accueil/carousel/carousel2.png";
-import carousel3 from "../assets/Accueil/carousel/carousel3.png";
-import carousel4 from "../assets/Accueil/carousel/carousel4.png";
-import carousel5 from "../assets/Accueil/carousel/carousel5.png";
-import carousel6 from "../assets/Accueil/carousel/carousel6.png";
-import carousel7 from "../assets/Accueil/carousel/carousel7.png";
-
-const backPublicPath = "http://localhost:8000/uploads/";
+import { backPublicPath } from '../utils';
 
 export default function Accueil() {
-  const photos = [
-    carousel1,
-    carousel2,
-    carousel3,
-    carousel4,
-    carousel5,
-    carousel6,
-    carousel7,
-  ];
 
-  const [modifications, setModifications] = useState([]);
+  const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [carousels, setCarousels] = useState([]);
 
   useEffect(() => {
-    fetch("https://127.0.0.1:8000/api/site_modifications?page=Accueil")
+    fetch("https://127.0.0.1:8000/api/sections/?Page_Id=1")
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des données");
-        }
+        if (!response.ok) throw new Error("Erreur réseau");
         return response.json();
       })
       .then((data) => {
-        const arrayModifications = data.member.map((item) => ({
+        const formattedSections = data.member.map((item) => ({
           id: item.id,
-          image: item.image,
-          position: item.position,
-          texte: item.texte,
+          title: item.Title,
+          text: item.Text,
+          imgSrc: item.Image_Id?.url,
+          imgAlt: item.Image_Id?.alt,
+          position: item.Position,
         }));
-        console.log(data);
-        setModifications(arrayModifications);
+        setSections(formattedSections);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -52,46 +35,71 @@ export default function Accueil() {
       });
   }, []);
 
+  useEffect(() => {
+    fetch("https://127.0.0.1:8000/api/carousels/")
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur carousels: " + response.status);
+        return response.json();
+      })
+      .then((data) => {
+        const members = data?.member ?? [];
+
+        const result = members.map((carousel) => {
+          const cid = carousel?.id ?? null;
+          const ctitle = carousel?.title ?? "";
+          const cpage = carousel?.page?.Name ?? "";
+          const imgs = (carousel.images ?? [])
+            .slice()
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+            .map((carouselitem) => {
+              const filename = carouselitem?.image?.url;
+              if (!filename) return null;
+              return {
+                url: backPublicPath + String(filename).replace(/^\//, ""),
+                alt: carouselitem?.image?.alt ?? "",
+                position: carouselitem?.position ?? null,
+              };
+            })
+            .filter(Boolean);
+
+          return { id: cid, title: ctitle, page: cpage, images: imgs };
+        });
+
+        setCarousels(result);
+      })
+      .catch((err) => {
+        console.error("Erreur fetch carousels:", err);
+        setCarousels([]);
+      });
+  }, []);
+
+  const photos = React.useMemo(() => {
+    return carousels
+      .filter(c => String(c.page).toLowerCase() === 'accueil')
+      .flatMap(carouselItem => (carouselItem.images || []).map(img => img.url));
+  }, [carousels]);
+
+  const getSectionByPosition = (pos) => sections.find((sectionItem) => sectionItem.position === pos);
+
   if (isLoading) {
     return <div className="text-center py-8">Chargement en cours...</div>;
   }
 
   return (
     <>
-      <section
-        className="
-          flex flex-col text-center
-          max-w-150 mx-auto px-5 p-5 box-content
-          lg:flex-row lg:text-left lg:max-w-300 lg:py-26
-        "
-      >
-        <img
-          src={
-            backPublicPath.concat(
-              "",
-              modifications.find((item) => item.position === 1)?.image
-            )
-          }
-          className="
-            object-cover
-            max-w-88 w-full
-            mx-auto mt-11
-            lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-          "
-          alt="part of the canopees team"
-        />
-        <div
-          className="
-            mb-0
-            lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-130
-          "
+      {/* Section Accueil */}
+      {getSectionByPosition(1) && (
+        <Section
+          imgSrc={getSectionByPosition(1).imgSrc}
+          imgAlt={getSectionByPosition(1).imgAlt}
+          text={getSectionByPosition(1).text}
+          imgFirst={true}
         >
-          <h2 className="mb-5">Canopées, c’est avant tout une équipe de passionnés</h2>
-          <div className="whitespace-pre-line">
-            {parse(modifications.find((item) => item.position === 1)?.texte)}
-          </div>
-        </div>
-      </section>
+          <h2>{getSectionByPosition(1).title}</h2>
+        </Section>
+      )}
+
+      {/* Section Slider */}
       <section
         className="
           flex flex-col text-center
@@ -99,16 +107,12 @@ export default function Accueil() {
           lg:flex-row lg:text-left lg:max-w-300 lg:py-26
         "
       >
-        <div className="lg:order-0 order-1">
-          <h2 className="mb-5">Particuliers, Professionnels, Collectivitées</h2>
-          <div className="whitespace-pre-line">
-            {parse(modifications.find((item) => item.position === 2)?.texte)}
-          </div>
-        </div>
         <Slider />
       </section>
+
+      {/* Section Carousel */}
       <section className="flex-col max-w-300 px-5 mx-auto box-content flex">
-        <h2 className="text-center mb-5">Exemples de réalisations</h2>
+        <h2 className="text-center mb-5">{carousels.find((item) => item.page === 'accueil')?.title}</h2>
         <Carousel photos={photos} startIndex={3} />
       </section>
     </>
