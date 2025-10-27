@@ -15,7 +15,7 @@ export default function Section({
   onOpenDetails = () => {},
 }) {
   const baseContainer = `
-    flex flex-col text-center
+    flex flex-col
     max-w-150 mx-auto p-5 box-content
     lg:flex-row lg:text-left lg:max-w-300
   `;
@@ -28,13 +28,13 @@ export default function Section({
   `;
 
   const baseTextClass = `
-    mb-0 mt-5 text-center
+    mb-0 mt-5
     lg:mt-0 lg:mx-0 lg:mr-26 lg:max-w-135 lg:w-135 lg:max-h-130 lg:h-70
     flex flex-col justify-start
   `;
 
   const buttonClass = `
-    inline-block bg-[var(--orange)]
+    inline-block bg-[var(--orange)] text-center
     text-white px-4 py-2 rounded shadow hover:bg-[var(--pink)] transition
   `;
 
