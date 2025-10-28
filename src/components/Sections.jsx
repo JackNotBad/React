@@ -1,5 +1,5 @@
 import parse from "html-react-parser";
-import { nettoyerTexte, backPublicPath } from '../utils';
+import { nettoyerTexte, uploadsPublicPath } from '../utils';
 
 export default function Section({
   title,
@@ -65,7 +65,7 @@ export default function Section({
         <>
           {imgSrc && (
             <img
-              src={`${backPublicPath}${String(imgSrc).replace(/^\//, "")}`}
+              src={`${uploadsPublicPath}${String(imgSrc).replace(/^\//, "")}`}
               alt={imgAlt}
               className={`${baseImgClass} ${imgClass}`}
             />
@@ -77,7 +77,7 @@ export default function Section({
           {TextBlock}
           {imgSrc && (
             <img
-              src={`${backPublicPath}${String(imgSrc).replace(/^\//, "")}`}
+              src={`${uploadsPublicPath}${String(imgSrc).replace(/^\//, "")}`}
               alt={imgAlt}
               className={`${baseImgClass} ${imgClass}`}
             />

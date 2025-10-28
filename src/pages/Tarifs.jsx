@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { backPublicPath } from "../utils";
+import { uploadsPublicPath, sitePublicPath } from '../utils';
 import Modal from "../components/Modal";
 
 export default function Tarifs() {
@@ -14,13 +14,13 @@ export default function Tarifs() {
 
   const normalizeUrl = (url) => {
     if (!url) return null;
-    return /^https?:\/\//i.test(url) ? url : `${backPublicPath}${String(url).replace(/^\//, "")}`;
+    return /^https?:\/\//i.test(url) ? url : `${uploadsPublicPath}${String(url).replace(/^\//, "")}`;
   };
 
   useEffect(() => {
     setIsLoading(true);
 
-    fetch("https://127.0.0.1:8000/api/price_lists")
+    fetch(sitePublicPath + "/api/price_lists")
       .then((response) => {
         if (!response.ok) throw new Error(`Erreur réseau: ${response.status}`);
         return response.json();
@@ -61,7 +61,7 @@ export default function Tarifs() {
   useEffect(() => {
     setIsLoading(true);
 
-    fetch("https://127.0.0.1:8000/api/sections/?Page_Id=3")
+    fetch(sitePublicPath + "/api/sections/?Page_Id=3")
       .then((response) => {
         if (!response.ok) throw new Error(`Erreur réseau: ${response.status}`);
         return response.json();

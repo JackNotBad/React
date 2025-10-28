@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import parse from "html-react-parser";
 import React from "react";
-import { nettoyerTexte } from '../utils';
-
-const backPublicPath = "http://localhost:8000/uploads/";
+import { nettoyerTexte, uploadsPublicPath, sitePublicPath } from '../utils';
 
 export default function Slider() {
   const [index, setIndex] = useState(0);
@@ -12,7 +10,7 @@ export default function Slider() {
   const [texte, setTexte] = useState("");
 
   useEffect(() => {
-    fetch("https://127.0.0.1:8000/api/sliders/")
+    fetch(sitePublicPath + "/api/sliders/")
       .then((response) => {
         if (!response.ok) throw new Error("Erreur sliders: " + response.status);
         return response.json();
@@ -31,7 +29,7 @@ export default function Slider() {
               const filename = slideritem?.image?.url;
               if (!filename) return null;
               return {
-                url: backPublicPath + String(filename).replace(/^\//, ""),
+                url: uploadsPublicPath + String(filename).replace(/^\//, ""),
                 alt: slideritem?.image?.alt ?? "",
                 position: slideritem?.position ?? null,
               };

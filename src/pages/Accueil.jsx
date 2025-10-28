@@ -3,7 +3,7 @@ import React from "react";
 import Slider from "../components/Slider";
 import Section from "../components/Sections";
 import Carousel from "../components/Carousel";
-import { backPublicPath } from '../utils';
+import { uploadsPublicPath, sitePublicPath } from '../utils';
 
 export default function Accueil() {
 
@@ -12,7 +12,7 @@ export default function Accueil() {
   const [carousels, setCarousels] = useState([]);
 
   useEffect(() => {
-    fetch("https://127.0.0.1:8000/api/sections/?Page_Id=1")
+    fetch(sitePublicPath + "/api/sections/?Page_Id=1")
       .then((response) => {
         if (!response.ok) throw new Error("Erreur réseau");
         return response.json();
@@ -36,7 +36,7 @@ export default function Accueil() {
   }, []);
 
   useEffect(() => {
-    fetch("https://127.0.0.1:8000/api/carousels/")
+    fetch(sitePublicPath + "/api/carousels/")
       .then((response) => {
         if (!response.ok) throw new Error("Erreur carousels: " + response.status);
         return response.json();
@@ -55,7 +55,7 @@ export default function Accueil() {
               const filename = carouselitem?.image?.url;
               if (!filename) return null;
               return {
-                url: backPublicPath + String(filename).replace(/^\//, ""),
+                url: uploadsPublicPath + String(filename).replace(/^\//, ""),
                 alt: carouselitem?.image?.alt ?? "",
                 position: carouselitem?.position ?? null,
               };

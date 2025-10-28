@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Section from "../components/Sections";
 import Modal from "../components/Modal";
-import { backPublicPath } from "../utils";
+import { uploadsPublicPath, sitePublicPath } from '../utils';
 
 export default function Prestations() {
   const [sections, setSections] = useState([]);
@@ -13,7 +13,7 @@ export default function Prestations() {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch("https://127.0.0.1:8000/api/sections/?Page_Id=3")
+    fetch(sitePublicPath + "/api/sections/?Page_Id=3")
       .then((response) => {
         if (!response.ok) throw new Error("Erreur réseau");
         return response.json();
@@ -34,7 +34,7 @@ export default function Prestations() {
             .map((url) =>
               /^https?:\/\//i.test(url)
                 ? url
-                : `${backPublicPath}${url.replace(/^\//, "")}`
+                : `${uploadsPublicPath}${url.replace(/^\//, "")}`
             );
 
           return {
