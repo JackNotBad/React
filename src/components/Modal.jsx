@@ -1,18 +1,4 @@
-import React, { useEffect, useRef } from "react";
-
-/**
- * Modal qui :
- * - bloque le scroll du body quand open === true
- * - permet de scroller à l'intérieur de la modal
- * - ferme la modal en cliquant n'importe où (dans la modal ou sur le backdrop)
- *   sauf si l'utilisateur a fait un mouvement > THRESHOLD entre pointerdown et pointerup
- *
- * Props :
- * - open (bool)
- * - onClose (fn)
- * - photos (array string | {src, alt})
- * - imageMaxHeight (string) optionnel, ex "220px" ou "60vh"
- */
+import { useEffect, useRef } from "react";
 
 export default function ModalClickAnywhere({
   open = false,
@@ -26,9 +12,12 @@ export default function ModalClickAnywhere({
     startX: 0,
     startY: 0,
     moved: false,
+    longPress: false,
+    timerId: null,
   });
 
   const MOVE_THRESHOLD = 10;
+  const LONG_PRESS_MS = 300;
 
   useEffect(() => {
     if (!open) return;
@@ -50,13 +39,32 @@ export default function ModalClickAnywhere({
 
   if (!open) return null;
 
+  const startLongPressTimer = () => {
+    clearLongPressTimer();
+    pointerRef.current.longPress = false;
+    pointerRef.current.timerId = window.setTimeout(() => {
+      pointerRef.current.longPress = true;
+      pointerRef.current.timerId = null;
+    }, LONG_PRESS_MS);
+  };
+
+  const clearLongPressTimer = () => {
+    if (pointerRef.current.timerId != null) {
+      clearTimeout(pointerRef.current.timerId);
+      pointerRef.current.timerId = null;
+    }
+  };
+
   const handlePointerDown = (e) => {
     pointerRef.current.isDown = true;
     pointerRef.current.moved = false;
+    pointerRef.current.longPress = false;
 
     const p = e.touches ? e.touches[0] : e;
     pointerRef.current.startX = p.clientX;
     pointerRef.current.startY = p.clientY;
+
+    startLongPressTimer();
   };
 
   const handlePointerMove = (e) => {
@@ -66,15 +74,31 @@ export default function ModalClickAnywhere({
     const dy = Math.abs(p.clientY - pointerRef.current.startY);
     if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) {
       pointerRef.current.moved = true;
+      pointerRef.current.longPress = false;
+      clearLongPressTimer();
     }
   };
 
   const handlePointerUp = (e) => {
-    if (!pointerRef.current.moved) {
+    const wasMoved = pointerRef.current.moved;
+    const wasLongPress = pointerRef.current.longPress;
+
+    clearLongPressTimer();
+
+    if (!wasMoved && !wasLongPress) {
       onClose();
     }
+
     pointerRef.current.isDown = false;
     pointerRef.current.moved = false;
+    pointerRef.current.longPress = false;
+  };
+
+  const handlePointerCancel = () => {
+    clearLongPressTimer();
+    pointerRef.current.isDown = false;
+    pointerRef.current.moved = false;
+    pointerRef.current.longPress = false;
   };
 
   const stopBackdropWheel = (e) => {
@@ -96,7 +120,8 @@ export default function ModalClickAnywhere({
       onMouseMove={handlePointerMove}
       onTouchEnd={handlePointerUp}
       onMouseUp={handlePointerUp}
-      // wheel sur backdrop
+      onTouchCancel={handlePointerCancel}
+      onMouseLeave={handlePointerCancel}
       onWheel={stopBackdropWheel}
       role="dialog"
       aria-modal="true"

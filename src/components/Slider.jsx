@@ -72,9 +72,9 @@ export default function Slider() {
       <>
         <div className="lg:order-0 order-1">
           <h2 className="mb-5">{parse(title)}</h2>
-          <p className="whitespace-pre-line">
+          <div className="whitespace-pre-line">
             {parse(texte)}
-          </p>
+          </div>
         </div>
         <img
           src={photos[index]}

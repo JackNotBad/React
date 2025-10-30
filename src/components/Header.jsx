@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { sitePublicPath } from '../utils';
 import Navbar from "../Navbar";
 import Logo from "../assets/Accueil/logo-canopees.png";
 import close from "../assets/close.png";
@@ -13,7 +14,7 @@ export default function Header() {
   
 
   useEffect(() => {
-    fetch('https://127.0.0.1:8000/api/pages')
+    fetch(sitePublicPath + "/api/pages")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des données");

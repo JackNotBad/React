@@ -15,10 +15,11 @@ export default function Section({
   onOpenDetails = () => {},
 }) {
   const baseContainer = `
-    flex flex-col
-    max-w-150 mx-auto p-5 box-content
-    lg:flex-row lg:text-left lg:max-w-300
+    flex flex-col text-center
+    max-w-300 mx-auto p-5 box-content
+    lg:flex-row lg:text-left lg:max-w-300 lg:py-26
   `;
+  
 
   const baseImgClass = `
     object-contain
