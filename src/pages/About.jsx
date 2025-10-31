@@ -155,6 +155,19 @@ return (
           <h2>{getSectionByPosition(5).title}</h2>
         </Section>
       )}
+
+      {/* Citation */}
+      <figure className="max-w-3xl mx-auto my-6 relative">
+      <blockquote className="relative bg-[var(--green)] p-6 md:p-8 rounded-lg shadow-sm">
+        <span className="absolute -top-4 -left-4 text-6xl text-[var(--orange)] select-none pointer-events-none">“</span>
+        <p className="text-lg md:text-2xl leading-relaxed text-[var(--orange)]">
+          « Nous n'héritons pas de la terre de nos ancêtres, nous l'empruntons à nos enfants. »
+        </p>
+      </blockquote>
+      <figcaption className="mt-3 text-sm text-[var(--orange)]">
+        — <cite className="not-italic">Proverbe amérindien</cite>
+      </figcaption>
+    </figure>
     </>
   );
 }

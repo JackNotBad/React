@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import React from "react";
 import Slider from "../components/Slider";
 import Section from "../components/Sections";
@@ -38,7 +39,7 @@ export default function Accueil() {
   useEffect(() => {
     fetch(sitePublicPath + "/api/carousels/")
       .then((response) => {
-        if (!response.ok) throw new Error("Erreur carousels: " + response.status);
+        if (!response.ok) throw new Error("Erreur carrousel: " + response.status);
         return response.json();
       })
       .then((data) => {
@@ -68,7 +69,7 @@ export default function Accueil() {
         setCarousels(result);
       })
       .catch((err) => {
-        console.error("Erreur fetch carousels:", err);
+        console.error("Erreur import API pour le carrousel:", err);
         setCarousels([]);
       });
   }, []);
@@ -98,6 +99,19 @@ export default function Accueil() {
           <h2>{getSectionByPosition(1).title}</h2>
         </Section>
       )}
+      <Link
+        to="/contact"
+        className="
+        text-center text-xl
+        bg-[var(--green)] text-[var(--pink)]
+        py-6 px-4 rounded 
+        hover:bg-[var(--pink)] transition
+        flex flex-col
+        max-w-50 mx-auto p-5 box-content
+         "
+      >
+        Contact ou Devis ?
+      </Link>
 
       {/* Section Slider */}
       <section

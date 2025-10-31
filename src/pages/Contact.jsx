@@ -1,5 +1,5 @@
-// src/pages/Contact.jsx
 import { useState } from "react";
+import { sitePublicPath } from '../utils';
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -23,7 +23,7 @@ export default function Contact() {
     setStatus({ loading: true, success: null, error: null });
 
     try {
-      const apiUrl = "https://localhost:8000/api/messages";
+      const apiUrl = sitePublicPath + "/api/messages";
 
       const token = localStorage.getItem("jwtToken");
 
@@ -165,7 +165,7 @@ export default function Contact() {
 
         <iframe
           title="Plan d'accès"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.999802217947!2d2.292292615674644!3d48.85837307928753!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fdfbaae9f9b%3A0x6bb1e5e4f4b7e95!2sEiffel%20Tower!5e0!3m2!1sen!2sfr!4v1676464169196"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d674925.5328074142!2d2.4607021713113943!3d48.639929534455625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e67b0661e1366f%3A0xa546489860cb8273!2zQ0FOT1DDiUVT!5e0!3m2!1sfr!2sfr!4v1761919356543!5m2!1sfr!2sfr"
           width="100%"
           height="300"
           allowFullScreen=""
