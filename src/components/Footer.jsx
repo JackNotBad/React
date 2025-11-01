@@ -106,11 +106,11 @@ export default function Footer() {
           <p className="text-[var(--orange)!important]
           row-start-2 col-start-1 col-end-3 
           lg:row-start-1 lg:col-start-2 lg:col-end-3
-          ">60, impasse de Valention</p>
+          ">20 Rue des Binelles</p>
           <p className="text-[var(--orange)!important]
           row-start-3 col-start-1 col-end-3 
           lg:row-start-1 lg:col-start-3 lg:col-end-4 lg:justify-self-start
-          ">28100 Barondan</p>
+          ">92310 Sèvres</p>
           <p className="text-[var(--orange)!important]
           row-start-4 col-start-1 col-end-3 
           lg:row-start-2 lg:col-start-2 lg:col-end-3
